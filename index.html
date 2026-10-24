@@ -1,0 +1,2670 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WAVEWRLD</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
+
+    <link rel="icon" type="image/png" href="./media/favicon.ico">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Didact Gothic', sans-serif;
+        }
+
+        /* ================= NAVBAR ================= */
+
+        #dropdown {
+            transition: opacity 300ms ease, transform 300ms ease, visibility 300ms ease;
+        }
+
+        .nav-link,
+        .dropdown-link {
+            transition: color 200ms ease;
+        }
+
+        @media (max-width: 767px) {
+            #navigation {
+                grid-column: span 8 / span 8;
+            }
+
+            #navigation>ul {
+                gap: 8px;
+                padding: 8px;
+            }
+
+            #navigation .nav-link {
+                font-size: 12px;
+            }
+
+            #navigation #dropdown-content {
+                padding: 10px;
+            }
+        }
+
+        /* ================= HERO ================= */
+
+        .media-hero {
+            isolation: isolate;
+            height: 100svh;
+            min-height: 600px;
+            background: #f4f8ff;
+            overflow: hidden;
+        }
+
+        .media-backdrop {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 12% 12%,
+                    rgba(104, 164, 255, .35), transparent 38%),
+                radial-gradient(ellipse at 88% 22%,
+                    rgba(165, 139, 255, .28), transparent 38%),
+                radial-gradient(ellipse at 50% 90%,
+                    rgba(75, 220, 235, .28), transparent 44%),
+                linear-gradient(135deg, #f8fbff, #eaf3ff 50%, #f8f7ff);
+        }
+
+        /* Four evenly spaced horizontal rows */
+        .media-wall {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            padding: 65px 0 25px;
+            overflow: hidden;
+        }
+
+        .media-row {
+            width: 100%;
+            flex: 0 0 auto;
+        }
+
+        .media-track {
+            display: flex;
+            width: max-content;
+            will-change: transform;
+            animation: media-flow 48s linear infinite;
+        }
+
+        /* Each group has an identical duplicate */
+        .media-group {
+            display: flex;
+            flex: 0 0 auto;
+            align-items: center;
+            gap: clamp(65px, 8.7vw, 145px);
+            padding-right: clamp(65px, 8.7vw, 145px);
+        }
+
+        /* Landscape cards like the reference */
+        .media-card {
+            display: block;
+            position: relative;
+            flex: 0 0 170px;
+            width: 170px;
+            height: 114px;
+            overflow: hidden;
+            background: #e1eafa;
+            border: 1px solid rgba(50, 80, 130, .12);
+            transition: transform 300ms ease, box-shadow 300ms ease;
+        }
+
+        .media-card img,
+        .media-card video {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .media-card img {
+            transition: transform 500ms ease;
+        }
+
+        .media-card:hover {
+            z-index: 5;
+            transform: scale(1.07);
+            box-shadow: 0 12px 32px rgba(40, 80, 150, .2);
+        }
+
+        .media-card:hover img {
+            transform: scale(1.06);
+        }
+
+        /* Different speeds and starting positions */
+        .row-one .media-track {
+            animation-duration: 46s;
+        }
+
+        .row-two .media-track {
+            animation-duration: 54s;
+            animation-delay: -14s;
+        }
+
+        .row-three .media-track {
+            animation-duration: 49s;
+            animation-delay: -27s;
+        }
+
+        .row-four .media-track {
+            animation-duration: 57s;
+            animation-delay: -8s;
+        }
+
+        @keyframes media-flow {
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* Hovering over any card pauses all rows */
+        .media-wall:has(.media-card:hover) .media-track,
+        .media-wall:has(.media-card:focus-visible) .media-track {
+            animation-play-state: paused;
+        }
+
+        /* Center glow */
+        .media-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            pointer-events: none;
+            background: radial-gradient(ellipse at center,
+                    rgba(245, 249, 255, .94) 0%,
+                    rgba(245, 249, 255, .76) 23%,
+                    rgba(245, 249, 255, .28) 48%,
+                    rgba(245, 249, 255, .04) 78%);
+        }
+
+        /* Centered brand */
+        .hero-content {
+            position: absolute;
+            inset: 0;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .hero-wordmark {
+            margin: 0;
+            color: #101c35;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: clamp(64px, 12vw, 175px);
+            font-weight: 700;
+            letter-spacing: -.085em;
+            line-height: .95;
+            white-space: nowrap;
+        }
+
+        .hero-wordmark span {
+            color: #477cff;
+        }
+
+        .hero-cta {
+            pointer-events: auto;
+        }
+
+        /* Mobile */
+        @media (max-width: 767px) {
+            .media-wall {
+                padding-top: 75px;
+                padding-bottom: 35px;
+            }
+
+            .media-group {
+                gap: 38px;
+                padding-right: 38px;
+            }
+
+            .media-card {
+                flex-basis: 125px;
+                width: 125px;
+                height: 84px;
+            }
+
+            .hero-wordmark {
+                font-size: clamp(48px, 12.5vw, 90px);
+                letter-spacing: -.075em;
+            }
+
+            .row-one .media-track {
+                animation-duration: 42s;
+            }
+
+            .row-two .media-track {
+                animation-duration: 48s;
+            }
+
+            .row-three .media-track {
+                animation-duration: 45s;
+            }
+
+            .row-four .media-track {
+                animation-duration: 52s;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .media-track {
+                animation: none;
+                transform: none;
+            }
+
+            .media-card,
+            .media-card img {
+                transition: none;
+            }
+        }
+
+        /* About section interactive showcase */
+        #about .about-showcase {
+            position: relative;
+            isolation: isolate;
+            box-shadow: 0 25px 80px rgba(50, 90, 160, 0.12);
+        }
+
+        #about .about-slide {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(1.035);
+            transition:
+                opacity 800ms cubic-bezier(.22, 1, .36, 1),
+                transform 1200ms cubic-bezier(.22, 1, .36, 1),
+                visibility 800ms;
+        }
+
+        #about .about-slide.is-active {
+            position: absolute;
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+        }
+
+        #about .about-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #about .about-slide::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top,
+                    rgba(7, 24, 55, .83) 0%,
+                    rgba(7, 24, 55, .24) 42%,
+                    transparent 75%);
+        }
+
+        #about .about-slide-content {
+            position: absolute;
+            z-index: 2;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 28px;
+            color: white;
+            transform: translateY(12px);
+            opacity: 0;
+            transition: opacity 650ms ease 180ms, transform 650ms ease 180ms;
+        }
+
+        #about .about-slide.is-active .about-slide-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        #about .about-changing-word {
+            display: inline-block;
+            color: #2563eb;
+            transition: opacity 300ms ease, transform 300ms ease;
+        }
+
+        #about .about-changing-word.is-changing {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        #about .about-indicator {
+            height: 3px;
+            flex: 1;
+            overflow: hidden;
+            background: #dbeafe;
+            cursor: pointer;
+            border: 0;
+            padding: 0;
+        }
+
+        #about .about-indicator span {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: #2563eb;
+            transform: scaleX(0);
+            transform-origin: left;
+        }
+
+        #about .about-indicator.is-active span {
+            animation: aboutProgress 3s linear forwards;
+        }
+
+        #about .about-indicator.is-active.is-paused span {
+            animation-play-state: paused;
+        }
+
+        #about .about-arrow {
+            transition: background .25s ease, color .25s ease, transform .25s ease;
+        }
+
+        #about .about-arrow:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        #about .about-arrow:active {
+            transform: scale(.94);
+        }
+
+        @keyframes aboutProgress {
+            from {
+                transform: scaleX(0);
+            }
+
+            to {
+                transform: scaleX(1);
+            }
+        }
+
+        @media (max-width: 640px) {
+            #about .about-slide-content {
+                padding: 22px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            #about .about-slide,
+            #about .about-slide-content,
+            #about .about-changing-word,
+            #about .about-arrow {
+                transition: none !important;
+            }
+
+            #about .about-indicator.is-active span {
+                animation: none;
+                transform: scaleX(1);
+            }
+        }
+    </style>
+
+    <link rel="stylesheet" href="./styles.css">
+</head>
+
+<body class="bg-white">
+
+
+    <!-- Loading Screen -->
+    <div id="site-loader" aria-label="Loading website" role="status">
+        <div class="loader-content">
+            <!-- Replace with your actual logo path -->
+            <img src="./media/logo.png" alt="Wavewrld" class="loader-logo" />
+
+            <div class="loader-bottom">
+                <div class="loader-status">
+                    <span id="loader-message">Preparing your experience</span>
+                    <span id="loader-percent">00%</span>
+                </div>
+
+                <div class="loader-track">
+                    <div id="loader-progress"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================= NAVBAR ================= -->
+
+
+
+    <nav class="fixed left-0 top-0 z-50 w-full text-[15px] sm:text-[16px]">
+        <div
+            class="mx-auto flex h-[60px] max-w-[1440px] items-center justify-between px-4 sm:px-6 lg:grid lg:grid-cols-12 lg:gap-[10px]">
+
+            <!-- Logo -->
+            <a href="#home" class="flex shrink-0 items-center lg:col-span-3">
+                <img class="h-9 w-auto object-contain sm:h-10" src="./media/logo.png" alt="Wavewrld" />
+            </a>
+
+            <!-- Desktop Navigation -->
+            <div id="navigation" class="relative hidden w-fit lg:col-span-7 lg:block">
+                <ul
+                    class="inline-flex items-center gap-4 border border-white/40 bg-white/40 px-3 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.04)] backdrop-blur-md xl:gap-6">
+                    <li>
+                        <a href="#clients" data-menu="Clients"
+                            class="nav-link block whitespace-nowrap text-slate-800/80 transition-colors ">
+                            Clients
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#services" data-menu="Services"
+                            class="nav-link block whitespace-nowrap text-slate-800/80 transition-colors ">
+                            Services
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#about" class="nav-link block whitespace-nowrap text-slate-800/80 transition-colors ">
+                            About us
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#insights" data-menu="Insights"
+                            class="nav-link block whitespace-nowrap text-slate-800/80 transition-colors">
+                            Insights
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Desktop dropdown -->
+                <div id="dropdown"
+                    class="invisible absolute left-0 top-full w-full translate-y-2 pt-1 opacity-0 transition-all duration-200">
+                    <div id="dropdown-content"
+                        class="border border-white/40 bg-white/80 p-3 text-slate-900 shadow-lg backdrop-blur-xl">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Desktop CTA: unchanged -->
+            <a href="#contact"
+                class="backdrop-blur-md hidden justify-self-end border border-white/40 bg-white/30 px-3 py-2 text-slate-900 transition-colors hover:bg-white/70 lg:col-span-2 lg:col-start-11 lg:inline-flex">
+                Let's Talk
+            </a>
+
+            <!-- Mobile actions: Let's Talk + hamburger -->
+            <div class="ml-auto flex items-center gap-2 lg:hidden">
+
+                <a href="#contact"
+                    class="inline-flex h-10 items-center justify-center border border-white/40 bg-white/40 px-3 text-sm text-slate-900 shadow-sm backdrop-blur-md transition-colors hover:bg-white/80 sm:px-4">
+                    Let's Talk
+                </a>
+
+                <button id="mobile-menu-button" type="button" aria-label="Open navigation menu" aria-expanded="false"
+                    aria-controls="mobile-navigation"
+                    class="inline-flex h-10 w-10 shrink-0 items-center justify-center border border-white/50 bg-white/50 text-slate-900 shadow-sm backdrop-blur-md transition hover:bg-white/80">
+
+                    <svg id="mobile-menu-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+                        <path d="M4 7h16M4 12h16M4 17h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile navigation panel -->
+        <div id="mobile-navigation"
+            class="invisible absolute left-0 right-0 top-[60px] translate-y-2 px-4 opacity-0 transition-all duration-200 sm:px-6 lg:hidden">
+
+            <div
+                class="border border-white/50 bg-white/90 p-4 shadow-[0_16px_50px_rgba(15,23,42,0.12)] backdrop-blur-2xl">
+
+                <ul class="flex flex-col">
+                    <li>
+                        <a href="#clients"
+                            class="mobile-nav-link block border-b border-slate-200/70 py-3 text-slate-800 transition-colors hover:text-blue-600">
+                            Clients
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#services"
+                            class="mobile-nav-link block border-b border-slate-200/70 py-3 text-slate-800 transition-colors hover:text-blue-600">
+                            Services
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#about"
+                            class="mobile-nav-link block border-b border-slate-200/70 py-3 text-slate-800 transition-colors hover:text-blue-600">
+                            About us
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#insights"
+                            class="mobile-nav-link block py-3 text-slate-800 transition-colors hover:text-blue-600">
+                            Insights
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- CTA inside dropdown -->
+                <a href="#contact"
+                    class="mt-4 flex w-full items-center justify-center border border-blue-200 bg-blue-50 px-4 py-3 text-slate-900 transition-colors hover:bg-blue-100">
+                    Let's Talk
+                    <span class="ml-2" aria-hidden="true">↗</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+
+
+    <!-- ================= HERO ================= -->
+
+    <main id="home" class="media-hero relative w-full">
+
+        <div class="media-backdrop"></div>
+
+        <!-- Rows are generated from your actual media filenames -->
+        <div class="media-wall" id="media-wall">
+
+            <div class="media-row row-one">
+                <div class="media-track"></div>
+            </div>
+
+            <div class="media-row row-two">
+                <div class="media-track"></div>
+            </div>
+
+            <div class="media-row row-three">
+                <div class="media-track"></div>
+            </div>
+
+            <div class="media-row row-four">
+                <div class="media-track"></div>
+            </div>
+
+        </div>
+
+        <div class="media-overlay"></div>
+
+        <!-- Centered wordmark -->
+        <div class="hero-content">
+
+            <!-- <p class="mb-4 text-xs uppercase tracking-[0.3em] text-slate-700 md:text-sm">
+                Independent thinking. Uncommon ideas.
+            </p> -->
+
+            <!-- Animated changing tagline -->
+            <div class="hero-tagline-wrapper">
+                <p id="hero-tagline" class="hero-tagline">
+                    Elevate Your Brand
+                </p>
+            </div>
+
+            <h1 class="hero-wordmark">
+                WAVEWRLD<span>.</span>
+            </h1>
+
+            <!-- <p class="mt-5 max-w-md text-sm text-slate-700 md:text-base">
+                Creative minds. Digital possibilities.
+            </p> -->
+
+            <a href="#services"
+                class="hero-cta mt-7 inline-flex items-center gap-4 border border-slate-800/40 px-5 py-3 text-xs uppercase tracking-widest text-slate-900 transition hover:bg-slate-900 hover:text-white">
+                Explore our work <span>↗</span>
+            </a>
+
+        </div>
+
+        <div
+            class="absolute bottom-6 left-6 right-6 z-20 flex justify-between text-[9px] uppercase tracking-widest text-slate-700/70 md:left-10 md:right-10 md:text-[10px]">
+            <span>Strategy / Design / Growth</span>
+            <span class="hidden sm:block">Guwahati, India</span>
+            <a href="#about" class="pointer-events-auto">Scroll to explore ↓</a>
+        </div>
+
+    </main>
+
+
+    <!-- clients -->
+
+
+    <section id="clients" class="min-h-0 bg-[#f8f8f8] px-4 py-14 text-[#111] sm:px-6 sm:py-16 md:px-8 md:py-20">
+        <div class="mx-auto max-w-[1600px]">
+
+            <!-- Heading -->
+            <h2
+                class="mb-10 text-3xl font-normal tracking-tight sm:mb-14 sm:text-4xl md:mb-16 md:text-5xl lg:mb-20 lg:text-[clamp(56px,5.8vw,96px)]">
+                Proud to work with
+            </h2>
+
+            <!-- Responsive Logos Grid -->
+            <div
+                class="grid grid-cols-2 items-center gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 sm:gap-y-10 md:grid-cols-4 md:gap-x-8 md:gap-y-12 lg:grid-cols-6 lg:gap-x-10 lg:gap-y-14">
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos.svg" alt="Aman"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-1.svg" alt="Client 2"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-2.svg" alt="Client 3"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-3.svg" alt="Client 4"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-5.svg" alt="Client 5"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-6.svg" alt="Client 6"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-7.svg" alt="Client 7"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-8.svg" alt="Client 8"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-11.svg" alt="Client 9"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-12.svg" alt="Client 10"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-14.svg" alt="Client 11"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-15.svg" alt="Client 12"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-17.svg" alt="Client 13"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-18.svg" alt="Client 14"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-19.svg" alt="Client 15"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-22.svg" alt="Client 16"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-23.svg" alt="Client 17"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-24.svg" alt="Client 18"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-25.svg" alt="Client 19"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-27.svg" alt="Client 20"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-28.svg" alt="Client 21"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-29.svg" alt="Client 22"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <!-- Preserved duplicate entries from your original section -->
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-6.svg" alt="Client 6"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+                <div
+                    class="client-logo-cell flex h-24 min-w-0 items-center justify-center sm:h-28 md:h-32 lg:h-40 xl:h-44">
+                    <img src="media/clients/Logos-7.svg" alt="Client 7"
+                        class="client-logo max-h-20 w-full max-w-[180px] object-contain sm:max-h-24 sm:max-w-[210px] lg:max-h-36 lg:max-w-[280px] xl:max-h-40 xl:max-w-[320px]"
+                        loading="lazy">
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- clients stories -->
+
+
+    <section
+        class="relative py-16 sm:py-20 lg:py-28 overflow-hidden bg-gradient-to-b from-white via-slate-50 to-white font-['Didact_Gothic']">
+        <div class="absolute inset-0 -z-10">
+            <div class="absolute inset-0 opacity-[0.035]" style="
+                background-image:
+                linear-gradient(#2563eb 1px, transparent 1px),
+                linear-gradient(90deg,#2563eb 1px, transparent 1px);
+                background-size:70px 70px;"></div>
+            <div class="absolute -top-44 right-0 w-[550px] h-[550px] rounded-full bg-blue-200/40 blur-[150px]"></div>
+            <div class="absolute bottom-0 -left-40 w-[450px] h-[450px] rounded-full bg-sky-200/40 blur-[140px]"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 sm:px-8 mb-14 sm:mb-16">
+            <span class="uppercase tracking-[.35em] text-blue-600 text-xs">BRANDS THAT MOVE FORWARD</span>
+
+            <div class="flex flex-col lg:flex-row lg:justify-between lg:items-end gap-8 mt-5">
+                <div>
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900">Stories Behind the Growth</h2>
+                    <p class="mt-6 text-slate-600 max-w-2xl text-base sm:text-lg leading-7 sm:leading-8">From sharper
+                        brand identities to campaigns built for attention, explore how thoughtful strategy, creative
+                        direction, and digital marketing help brands connect with the right people.</p>
+                </div>
+
+                <a href="#"
+                    class="inline-flex lg:flex items-center gap-3 text-blue-600 font-semibold hover:gap-5 transition-all">Explore
+                    Our Approach →</a>
+            </div>
+        </div>
+
+        <div class="relative">
+            <div class="customer-track">
+                <article class="customer-card group">
+                    <div
+                        class="relative h-full overflow-hidden  bg-white shadow-xl ring-1 ring-black/5 transition-all duration-500 group-hover:-translate-y-3 group-hover:shadow-2xl">
+                        <img src="https://images.unsplash.com/photo-1775880307192-ec3bc1bfa897?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+                            alt="A Brand Identity With Purpose"
+                            class="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-110" />
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/25 to-transparent">
+                        </div>
+                        <div class="absolute inset-x-0 bottom-0 p-8">
+                            <span
+                                class="inline-flex items-center  bg-white/90 backdrop-blur px-4 py-2 text-[11px] uppercase tracking-[.25em] font-semibold text-blue-700">BRAND
+                                STRATEGY</span>
+                            <h3 class="mt-6 text-3xl font-bold leading-tight text-white">A Brand Identity With Purpose
+                            </h3>
+                            <p class="mt-4 text-white/80 leading-7">Building a clear story, a distinct visual language,
+                                and a brand people remember.</p>
+                            <a href="#"
+                                class="inline-flex items-center gap-2 mt-8 font-semibold text-white transition-all group-hover:gap-4">Read
+                                Case Study →</a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="customer-card group">
+                    <div
+                        class="relative h-full overflow-hidden  bg-white shadow-xl ring-1 ring-black/5 transition-all duration-500 group-hover:-translate-y-3 group-hover:shadow-2xl">
+                        <img src="https://images.unsplash.com/photo-1675970962312-e01eff062f2a?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+                            alt="Turning Social Content Into Community"
+                            class="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-110" />
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/25 to-transparent">
+                        </div>
+                        <div class="absolute inset-x-0 bottom-0 p-8">
+                            <span
+                                class="inline-flex items-center  bg-white/90 backdrop-blur px-4 py-2 text-[11px] uppercase tracking-[.25em] font-semibold text-blue-700">SOCIAL
+                                MEDIA</span>
+                            <h3 class="mt-6 text-3xl font-bold leading-tight text-white">Turning Social Content Into
+                                Community</h3>
+                            <p class="mt-4 text-white/80 leading-7">A consistent content system designed to spark
+                                conversations and keep audiences coming back.</p>
+                            <a href="#"
+                                class="inline-flex items-center gap-2 mt-8 font-semibold text-white transition-all group-hover:gap-4">Read
+                                Case Study →</a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="customer-card group">
+                    <div
+                        class="relative h-full overflow-hidden  bg-white shadow-xl ring-1 ring-black/5 transition-all duration-500 group-hover:-translate-y-3 group-hover:shadow-2xl">
+                        <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=85"
+                            alt="Product Creative That Stops The Scroll"
+                            class="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-110" />
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/25 to-transparent">
+                        </div>
+                        <div class="absolute inset-x-0 bottom-0 p-8">
+                            <span
+                                class="inline-flex items-center  bg-white/90 backdrop-blur px-4 py-2 text-[11px] uppercase tracking-[.25em] font-semibold text-blue-700">CREATIVE
+                                CAMPAIGNS</span>
+                            <h3 class="mt-6 text-3xl font-bold leading-tight text-white">Product Creative That Stops The
+                                Scroll</h3>
+                            <p class="mt-4 text-white/80 leading-7">Product-led visuals and campaign concepts that make
+                                the value clear at a glance.</p>
+                            <a href="#"
+                                class="inline-flex items-center gap-2 mt-8 font-semibold text-white transition-all group-hover:gap-4">Read
+                                Case Study →</a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="customer-card group">
+                    <div
+                        class="relative h-full overflow-hidden  bg-white shadow-xl ring-1 ring-black/5 transition-all duration-500 group-hover:-translate-y-3 group-hover:shadow-2xl">
+                        <img src="https://images.unsplash.com/photo-1633533452148-a9657d2c9a5f?q=80&w=1631&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+                            alt="Making Digital Performance More Meaningful"
+                            class="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-110" />
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/25 to-transparent">
+                        </div>
+                        <div class="absolute inset-x-0 bottom-0 p-8">
+                            <span
+                                class="inline-flex items-center  bg-white/90 backdrop-blur px-4 py-2 text-[11px] uppercase tracking-[.25em] font-semibold text-blue-700">PERFORMANCE
+                                MARKETING</span>
+                            <h3 class="mt-6 text-3xl font-bold leading-tight text-white">Making Digital Performance More
+                                Meaningful</h3>
+                            <p class="mt-4 text-white/80 leading-7">Connecting campaign creative with clear goals,
+                                useful insights, and smarter optimisation.</p>
+                            <a href="#"
+                                class="inline-flex items-center gap-2 mt-8 font-semibold text-white transition-all group-hover:gap-4">Read
+                                Case Study →</a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="customer-card group">
+                    <div
+                        class="relative h-full overflow-hidden  bg-white shadow-xl ring-1 ring-black/5 transition-all duration-500 group-hover:-translate-y-3 group-hover:shadow-2xl">
+                        <img src="https://images.unsplash.com/photo-1492619375914-88005aa9e8fb?auto=format&fit=crop&w=900&q=85"
+                            alt="Content That Gives A Brand A Voice"
+                            class="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-110" />
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/25 to-transparent">
+                        </div>
+                        <div class="absolute inset-x-0 bottom-0 p-8">
+                            <span
+                                class="inline-flex items-center  bg-white/90 backdrop-blur px-4 py-2 text-[11px] uppercase tracking-[.25em] font-semibold text-blue-700">CONTENT
+                                PRODUCTION</span>
+                            <h3 class="mt-6 text-3xl font-bold leading-tight text-white">Content That Gives A Brand A
+                                Voice</h3>
+                            <p class="mt-4 text-white/80 leading-7">Creating a recognisable visual world across
+                                photography, video, and digital touchpoints.</p>
+                            <a href="#"
+                                class="inline-flex items-center gap-2 mt-8 font-semibold text-white transition-all group-hover:gap-4">Read
+                                Case Study →</a>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Duplicate cards for seamless marquee; hidden from assistive technology -->
+                <article class="customer-card group">
+                    <div
+                        class="relative h-full overflow-hidden  bg-white shadow-xl ring-1 ring-black/5 transition-all duration-500 group-hover:-translate-y-3 group-hover:shadow-2xl">
+                        <img src="https://images.unsplash.com/photo-1775880307192-ec3bc1bfa897?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+                            alt="A Brand Identity With Purpose"
+                            class="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-110" />
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/25 to-transparent">
+                        </div>
+                        <div class="absolute inset-x-0 bottom-0 p-8">
+                            <span
+                                class="inline-flex items-center  bg-white/90 backdrop-blur px-4 py-2 text-[11px] uppercase tracking-[.25em] font-semibold text-blue-700">BRAND
+                                STRATEGY</span>
+                            <h3 class="mt-6 text-3xl font-bold leading-tight text-white">A Brand Identity With Purpose
+                            </h3>
+                            <p class="mt-4 text-white/80 leading-7">Building a clear story, a distinct visual language,
+                                and a brand people remember.</p>
+                            <a href="#"
+                                class="inline-flex items-center gap-2 mt-8 font-semibold text-white transition-all group-hover:gap-4">Read
+                                Case Study →</a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="customer-card group">
+                    <div
+                        class="relative h-full overflow-hidden  bg-white shadow-xl ring-1 ring-black/5 transition-all duration-500 group-hover:-translate-y-3 group-hover:shadow-2xl">
+                        <img src="https://images.unsplash.com/photo-1675970962312-e01eff062f2a?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+                            alt="Turning Social Content Into Community"
+                            class="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-110" />
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/25 to-transparent">
+                        </div>
+                        <div class="absolute inset-x-0 bottom-0 p-8">
+                            <span
+                                class="inline-flex items-center  bg-white/90 backdrop-blur px-4 py-2 text-[11px] uppercase tracking-[.25em] font-semibold text-blue-700">SOCIAL
+                                MEDIA</span>
+                            <h3 class="mt-6 text-3xl font-bold leading-tight text-white">Turning Social Content Into
+                                Community</h3>
+                            <p class="mt-4 text-white/80 leading-7">A consistent content system designed to spark
+                                conversations and keep audiences coming back.</p>
+                            <a href="#"
+                                class="inline-flex items-center gap-2 mt-8 font-semibold text-white transition-all group-hover:gap-4">Read
+                                Case Study →</a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="customer-card group">
+                    <div
+                        class="relative h-full overflow-hidden  bg-white shadow-xl ring-1 ring-black/5 transition-all duration-500 group-hover:-translate-y-3 group-hover:shadow-2xl">
+                        <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=85"
+                            alt="Product Creative That Stops The Scroll"
+                            class="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-110" />
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/25 to-transparent">
+                        </div>
+                        <div class="absolute inset-x-0 bottom-0 p-8">
+                            <span
+                                class="inline-flex items-center  bg-white/90 backdrop-blur px-4 py-2 text-[11px] uppercase tracking-[.25em] font-semibold text-blue-700">CREATIVE
+                                CAMPAIGNS</span>
+                            <h3 class="mt-6 text-3xl font-bold leading-tight text-white">Product Creative That Stops The
+                                Scroll</h3>
+                            <p class="mt-4 text-white/80 leading-7">Product-led visuals and campaign concepts that make
+                                the value clear at a glance.</p>
+                            <a href="#"
+                                class="inline-flex items-center gap-2 mt-8 font-semibold text-white transition-all group-hover:gap-4">Read
+                                Case Study →</a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="customer-card group">
+                    <div
+                        class="relative h-full overflow-hidden  bg-white shadow-xl ring-1 ring-black/5 transition-all duration-500 group-hover:-translate-y-3 group-hover:shadow-2xl">
+                        <img src="https://images.unsplash.com/photo-1633533452148-a9657d2c9a5f?q=80&w=1631&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D"
+                            alt="Making Digital Performance More Meaningful"
+                            class="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-110" />
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/25 to-transparent">
+                        </div>
+                        <div class="absolute inset-x-0 bottom-0 p-8">
+                            <span
+                                class="inline-flex items-center  bg-white/90 backdrop-blur px-4 py-2 text-[11px] uppercase tracking-[.25em] font-semibold text-blue-700">PERFORMANCE
+                                MARKETING</span>
+                            <h3 class="mt-6 text-3xl font-bold leading-tight text-white">Making Digital Performance More
+                                Meaningful</h3>
+                            <p class="mt-4 text-white/80 leading-7">Connecting campaign creative with clear goals,
+                                useful insights, and smarter optimisation.</p>
+                            <a href="#"
+                                class="inline-flex items-center gap-2 mt-8 font-semibold text-white transition-all group-hover:gap-4">Read
+                                Case Study →</a>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="customer-card group">
+                    <div
+                        class="relative h-full overflow-hidden  bg-white shadow-xl ring-1 ring-black/5 transition-all duration-500 group-hover:-translate-y-3 group-hover:shadow-2xl">
+                        <img src="https://images.unsplash.com/photo-1492619375914-88005aa9e8fb?auto=format&fit=crop&w=900&q=85"
+                            alt="Content That Gives A Brand A Voice"
+                            class="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-110" />
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/25 to-transparent">
+                        </div>
+                        <div class="absolute inset-x-0 bottom-0 p-8">
+                            <span
+                                class="inline-flex items-center  bg-white/90 backdrop-blur px-4 py-2 text-[11px] uppercase tracking-[.25em] font-semibold text-blue-700">CONTENT
+                                PRODUCTION</span>
+                            <h3 class="mt-6 text-3xl font-bold leading-tight text-white">Content That Gives A Brand A
+                                Voice</h3>
+                            <p class="mt-4 text-white/80 leading-7">Creating a recognisable visual world across
+                                photography, video, and digital touchpoints.</p>
+                            <a href="#"
+                                class="inline-flex items-center gap-2 mt-8 font-semibold text-white transition-all group-hover:gap-4">Read
+                                Case Study →</a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ================= WHAT WE DO ================= -->
+    <section id="services"
+        class="what-we-do relative overflow-hidden bg-white px-6 py-24 text-slate-900 md:px-10 md:py-32">
+
+        <!-- Background decoration -->
+        <div class="pointer-events-none absolute -right-32 top-20 h-96 w-96 rounded-full bg-sky-100/70 blur-3xl"></div>
+        <div class="pointer-events-none absolute -left-32 bottom-0 h-80 w-80 rounded-full bg-blue-50 blur-3xl"></div>
+
+        <div class="relative mx-auto max-w-[1440px]">
+
+            <!-- Section heading -->
+            <div class="grid gap-10 md:grid-cols-2 md:items-end">
+                <div>
+                    <div class="mb-7 flex items-center gap-3">
+                        <p class="text-xs font-medium uppercase tracking-[0.25em] text-blue-500">
+                            What we do
+                        </p>
+                    </div>
+
+                    <h2 class="max-w-2xl text-4xl font-medium leading-tight tracking-tight sm:text-5xl lg:text-7xl">
+                        We turn bold ideas into real impact.
+                    </h2>
+                </div>
+
+                <div class="md:justify-self-end md:pb-2">
+                    <p class="max-w-lg text-base leading-7 text-slate-600 md:text-lg md:leading-8">
+                        From building distinctive brands to creating powerful digital
+                        experiences, we help ambitious businesses connect, grow and
+                        stay ahead.
+                    </p>
+
+                    <a href="#contact"
+                        class="mt-6 inline-flex items-center gap-3 border-b border-slate-300 pb-2 text-sm font-medium transition-colors hover:border-blue-600 hover:text-blue-600">
+                        Let's build something great
+                        <span aria-hidden="true">↗</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Services grid -->
+            <div class="mt-16 grid gap-4 sm:grid-cols-2 lg:mt-24 lg:grid-cols-3">
+
+                <!-- 01 Branding -->
+                <a href="#contact"
+                    class="service-card group relative flex flex-col justify-between overflow-hidden border border-slate-200 p-7 md:p-9">
+
+                    <div class="service-visual brand-scene">
+                        <div class="brand-orb"></div>
+                        <div class="brand-orb orb-two"></div>
+                        <div class="brand-orb orb-three"></div>
+                    </div>
+
+                    <div class="service-top">
+                        <span class="text-xs tracking-widest text-slate-500">01 / BRAND</span>
+                        <span
+                            class="service-icon flex h-12 w-12 items-center justify-center rounded-full bg-white/80 text-xl transition-all duration-300 group-hover:bg-blue-600 group-hover:text-white">✳</span>
+                    </div>
+
+                    <div class="service-copy mt-40">
+                        <h3 class="text-2xl font-medium tracking-tight">Brand Strategy & Identity</h3>
+                        <p class="mt-3 max-w-sm text-sm leading-6 text-slate-600">
+                            Build a distinctive brand with a clear voice, strong identity
+                            and a story people remember.
+                        </p>
+                        <div class="mt-6 flex items-center justify-between">
+                            <span class="text-xs uppercase tracking-widest text-slate-500">Discover more</span>
+                            <span
+                                class="text-xl transition-transform group-hover:translate-x-1 group-hover:-translate-y-1">↗</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- 02 Web design -->
+                <a href="#contact"
+                    class="service-card group relative flex flex-col justify-between overflow-hidden border border-slate-200 p-7 md:p-9">
+
+                    <div class="service-visual web-scene">
+                        <div class="web-window">
+                            <div class="web-dots"><span></span><span></span><span></span></div>
+                            <div class="web-layout">
+                                <div>
+                                    <div class="web-block"></div>
+                                    <div class="web-line"></div>
+                                </div>
+                                <div>
+                                    <div class="web-block"></div>
+                                    <div class="web-line"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="service-top">
+                        <span class="text-xs tracking-widest text-slate-500">02 / DIGITAL</span>
+                        <span
+                            class="service-icon flex h-12 w-12 items-center justify-center rounded-full bg-white/80 text-xl transition-all duration-300 group-hover:bg-blue-600 group-hover:text-white">⌘</span>
+                    </div>
+
+                    <div class="service-copy mt-40">
+                        <h3 class="text-2xl font-medium tracking-tight">Web Design & Development</h3>
+                        <p class="mt-3 max-w-sm text-sm leading-6 text-slate-600">
+                            Beautiful, fast and responsive websites that turn visitors
+                            into customers.
+                        </p>
+                        <div class="mt-6 flex items-center justify-between">
+                            <span class="text-xs uppercase tracking-widest text-slate-500">Discover more</span>
+                            <span
+                                class="text-xl transition-transform group-hover:translate-x-1 group-hover:-translate-y-1">↗</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- 03 Social media -->
+                <a href="#contact"
+                    class="service-card group relative flex flex-col justify-between overflow-hidden border border-slate-200 p-7 md:p-9">
+
+                    <div class="service-visual social-scene">
+                        <div class="social-tile">◎</div>
+                        <div class="social-tile">♡</div>
+                        <div class="social-tile">▶</div>
+                        <div class="social-tile">✳</div>
+                    </div>
+
+                    <div class="service-top">
+                        <span class="text-xs tracking-widest text-slate-500">03 / SOCIAL</span>
+                        <span
+                            class="service-icon flex h-12 w-12 items-center justify-center rounded-full bg-white/80 text-xl transition-all duration-300 group-hover:bg-blue-600 group-hover:text-white">◎</span>
+                    </div>
+
+                    <div class="service-copy mt-40">
+                        <h3 class="text-2xl font-medium tracking-tight">Social Media & Content</h3>
+                        <p class="mt-3 max-w-sm text-sm leading-6 text-slate-600">
+                            Create meaningful content, grow your community and keep
+                            your brand part of the conversation.
+                        </p>
+                        <div class="mt-6 flex items-center justify-between">
+                            <span class="text-xs uppercase tracking-widest text-slate-500">Discover more</span>
+                            <span
+                                class="text-xl transition-transform group-hover:translate-x-1 group-hover:-translate-y-1">↗</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- 04 Performance marketing -->
+                <a href="#contact"
+                    class="service-card group relative flex flex-col justify-between overflow-hidden border border-slate-200 p-7 md:p-9">
+
+                    <div class="service-visual seo-scene">
+                        <div class="seo-chart">
+                            <div class="seo-bar"></div>
+                            <div class="seo-bar"></div>
+                            <div class="seo-bar"></div>
+                            <div class="seo-bar"></div>
+                            <div class="seo-bar"></div>
+                            <div class="seo-bar"></div>
+                        </div>
+                        <div class="seo-trend"></div>
+                    </div>
+
+                    <div class="service-top">
+                        <span class="text-xs tracking-widest text-slate-500">04 / GROWTH</span>
+                        <span
+                            class="service-icon flex h-12 w-12 items-center justify-center rounded-full bg-white/80 text-xl transition-all duration-300 group-hover:bg-blue-600 group-hover:text-white">↗</span>
+                    </div>
+
+                    <div class="service-copy mt-40">
+                        <h3 class="text-2xl font-medium tracking-tight">SEO & Performance Marketing</h3>
+                        <p class="mt-3 max-w-sm text-sm leading-6 text-slate-600">
+                            Reach the right audience through search, paid campaigns
+                            and data-driven optimisation.
+                        </p>
+                        <div class="mt-6 flex items-center justify-between">
+                            <span class="text-xs uppercase tracking-widest text-slate-500">Discover more</span>
+                            <span
+                                class="text-xl transition-transform group-hover:translate-x-1 group-hover:-translate-y-1">↗</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- 05 Video and creative -->
+                <a href="#contact"
+                    class="service-card group relative flex flex-col justify-between overflow-hidden border border-slate-200 p-7 md:p-9">
+
+                    <div class="service-visual creative-scene">
+                        <div class="creative-glow"></div>
+                        <div class="creative-ring"></div>
+                        <div class="creative-ring ring-two"></div>
+                        <div class="creative-light"></div>
+                    </div>
+
+                    <div class="service-top">
+                        <span class="text-xs tracking-widest text-slate-500">05 / CREATIVE</span>
+                        <span
+                            class="service-icon flex h-12 w-12 items-center justify-center rounded-full bg-white/80 text-xl transition-all duration-300 group-hover:bg-blue-600 group-hover:text-white">▶</span>
+                    </div>
+
+                    <div class="service-copy mt-40">
+                        <h3 class="text-2xl font-medium tracking-tight">Video & Creative Production</h3>
+                        <p class="mt-3 max-w-sm text-sm leading-6 text-slate-600">
+                            Bring your ideas to life with compelling visuals, campaigns
+                            and modern creative experiences.
+                        </p>
+                        <div class="mt-6 flex items-center justify-between">
+                            <span class="text-xs uppercase tracking-widest text-slate-500">Discover more</span>
+                            <span
+                                class="text-xl transition-transform group-hover:translate-x-1 group-hover:-translate-y-1">↗</span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- 06 Integrated marketing -->
+                <a href="#contact"
+                    class="service-card group relative flex flex-col justify-between overflow-hidden border border-slate-200 p-7 md:p-9">
+
+                    <div class="service-visual integrated-scene">
+                        <svg class="network-lines" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true">
+                            <line x1="65" y1="60" x2="185" y2="35"></line>
+                            <line x1="185" y1="35" x2="310" y2="75"></line>
+                            <line x1="65" y1="60" x2="130" y2="145"></line>
+                            <line x1="130" y1="145" x2="265" y2="150"></line>
+                            <line x1="265" y1="150" x2="310" y2="75"></line>
+                            <line x1="185" y1="35" x2="265" y2="150"></line>
+                        </svg>
+                        <div class="network-node" style="left:15%;top:22%"></div>
+                        <div class="network-node"></div>
+                        <div class="network-node"></div>
+                        <div class="network-node"></div>
+                        <div class="network-node"></div>
+                    </div>
+
+                    <div class="service-top">
+                        <span class="text-xs tracking-widest text-slate-500">06 / STRATEGY</span>
+                        <span
+                            class="service-icon flex h-12 w-12 items-center justify-center rounded-full bg-white/80 text-xl transition-all duration-300 group-hover:bg-blue-600 group-hover:text-white">⌁</span>
+                    </div>
+
+                    <div class="service-copy mt-40">
+                        <h3 class="text-2xl font-medium tracking-tight">Integrated Marketing</h3>
+                        <p class="mt-3 max-w-sm text-sm leading-6 text-slate-600">
+                            Connect every channel with one cohesive strategy designed
+                            to strengthen your brand and drive growth.
+                        </p>
+                        <div class="mt-6 flex items-center justify-between">
+                            <span class="text-xs uppercase tracking-widest text-slate-500">Discover more</span>
+                            <span
+                                class="text-xl transition-transform group-hover:translate-x-1 group-hover:-translate-y-1">↗</span>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+
+            <!-- Bottom statement -->
+            <div class="mt-16 flex flex-col gap-5 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                <p class="max-w-xl text-sm leading-6 text-slate-500">
+                    One team. Connected thinking. Digital experiences built for what's next.
+                </p>
+
+                <a href="#contact"
+                    class="inline-flex items-center gap-3 self-start bg-slate-900 px-6 py-3 text-sm text-white transition-colors hover:bg-blue-600">
+                    Start a conversation
+                    <span aria-hidden="true">↗</span>
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- tools -->
+
+    <section id="tools" class="tools-section">
+        <div class="tools-marquee">
+            <div class="tools-track">
+
+                <!-- Original icon set -->
+                <div class="tools-group">
+                    <!-- Marketing & SEO -->
+                    <img src="https://cdn.simpleicons.org/googleads" alt="Google Ads" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/googleanalytics" alt="Google Analytics" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/googlesearchconsole" alt="Google Search Console"
+                        class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/googletagmanager" alt="Google Tag Manager" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/semrush" alt="Semrush" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/ahrefs" alt="Ahrefs" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/hubspot" alt="HubSpot" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/mailchimp" alt="Mailchimp" class="tools-icon">
+
+                    <!-- Social & content -->
+                    <img src="https://cdn.simpleicons.org/meta" alt="Meta" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/instagram" alt="Instagram" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/linkedin" alt="LinkedIn" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/tiktok" alt="TikTok" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/youtube" alt="YouTube" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/canva" alt="Canva" class="tools-icon">
+
+                    <!-- Design & development -->
+                    <img src="https://cdn.simpleicons.org/figma" alt="Figma" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/adobephotoshop" alt="Adobe Photoshop" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/adobeillustrator" alt="Adobe Illustrator" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/wordpress" alt="WordPress" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/shopify" alt="Shopify" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/webflow" alt="Webflow" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/react" alt="React" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/nextdotjs" alt="Next.js" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/tailwindcss" alt="Tailwind CSS" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/javascript" alt="JavaScript" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/github" alt="GitHub" class="tools-icon">
+                </div>
+
+                <!-- Duplicate for continuous animation -->
+                <div class="tools-group" aria-hidden="true">
+                    <img src="https://cdn.simpleicons.org/googleads" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/googleanalytics" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/googlesearchconsole" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/googletagmanager" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/semrush" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/ahrefs" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/hubspot" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/mailchimp" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/meta" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/instagram" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/linkedin" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/tiktok" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/youtube" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/canva" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/figma" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/adobephotoshop" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/adobeillustrator" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/wordpress" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/shopify" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/webflow" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/react" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/nextdotjs" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/tailwindcss" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/javascript" alt="" class="tools-icon">
+                    <img src="https://cdn.simpleicons.org/github" alt="" class="tools-icon">
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+
+    <section id="about"
+        class="relative isolate overflow-hidden bg-gradient-to-b from-white via-[#f5f9ff] to-white px-6 py-20 text-slate-900 sm:py-24 md:px-10 lg:py-32">
+
+        <div class="relative mx-auto max-w-[1440px]">
+
+            <!-- Section label -->
+            <div class="mb-12 flex items-center justify-between border-b border-blue-900/10 pb-5 sm:mb-16">
+                <span class="text-xs uppercase tracking-[0.3em] text-blue-600">
+                    A little about our thinking
+                </span>
+                <!-- <span class="hidden text-xs uppercase tracking-[0.2em] text-slate-400 sm:block">
+                    Independent thinking / Uncommon ideas
+                </span> -->
+            </div>
+
+            <!-- Main layout -->
+            <div class="grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
+
+                <!-- Left: Changing statement -->
+                <div class="lg:col-span-7">
+
+                    <p class="mb-5 text-xs uppercase tracking-[0.25em] text-slate-400">
+                        Our philosophy
+                    </p>
+
+                    <h2
+                        class="max-w-4xl text-4xl font-normal leading-[1.08] tracking-tight sm:text-5xl md:text-6xl lg:text-[clamp(54px,5.5vw,82px)]">
+                        The future belongs to brands that
+                        <span id="about-changing-word" class="about-changing-word">think differently.</span>
+                    </h2>
+
+                    <p class="mt-7 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
+                        We believe good marketing starts with better questions.
+                        We combine strategic thinking, thoughtful design and digital
+                        creativity to help businesses find their voice and move forward.
+                    </p>
+
+                    <a href="#contact"
+                        class="mt-8 inline-flex items-center gap-3 border-b border-blue-300 pb-3 text-sm text-slate-800 transition-all duration-300 hover:gap-5 hover:border-blue-600 hover:text-blue-600">
+                        Let's talk about your vision
+                        <span aria-hidden="true" class="text-lg">↗</span>
+                    </a>
+
+                    <!-- Three principles -->
+                    <div class="mt-12 grid gap-6 border-t border-blue-900/10 pt-7 sm:grid-cols-3 sm:gap-5">
+
+                        <div>
+                            <span class="text-xs tracking-[0.2em] text-blue-600">01 / THINK</span>
+                            <h3 class="mt-3 text-lg font-normal">Clarity first</h3>
+                            <p class="mt-2 text-sm leading-6 text-slate-500">
+                                Understand the problem before designing the solution.
+                            </p>
+                        </div>
+
+                        <div>
+                            <span class="text-xs tracking-[0.2em] text-blue-600">02 / CREATE</span>
+                            <h3 class="mt-3 text-lg font-normal">Ideas with intent</h3>
+                            <p class="mt-2 text-sm leading-6 text-slate-500">
+                                Make every creative decision count.
+                            </p>
+                        </div>
+
+                        <div>
+                            <span class="text-xs tracking-[0.2em] text-blue-600">03 / GROW</span>
+                            <h3 class="mt-3 text-lg font-normal">Progress that matters</h3>
+                            <p class="mt-2 text-sm leading-6 text-slate-500">
+                                Connect creative work to meaningful business goals.
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Right: Automatic image carousel -->
+                <div class="relative lg:col-span-5">
+
+                    <div
+                        class="absolute -inset-5 rounded-[2rem] bg-gradient-to-br from-blue-200/60 via-cyan-100/50 to-violet-200/60 blur-2xl">
+                    </div>
+
+                    <div
+                        class="about-showcase group relative border border-white/80 bg-white/70 p-2 backdrop-blur-sm sm:p-3">
+
+                        <!-- Image viewport -->
+                        <div id="about-carousel" class="relative aspect-[4/5] overflow-hidden bg-slate-100"
+                            role="region" aria-roledescription="carousel" aria-label="Our creative philosophy"
+                            tabindex="0">
+
+                            <!-- Slide 1 -->
+                            <article class="about-slide is-active" data-about-slide data-word="think differently."
+                                data-caption="Different thinking creates new possibilities."
+                                data-category="OUR POINT OF VIEW" aria-hidden="false">
+
+                                <img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=85"
+                                    alt="Bright contemporary creative workspace" fetchpriority="high">
+
+                                <div class="about-slide-content">
+                                    <span class="text-[10px] uppercase tracking-[0.3em] text-white/75">
+                                        Our point of view
+                                    </span>
+                                    <p class="mt-3 max-w-sm text-2xl leading-snug sm:text-3xl">
+                                        Different thinking creates new possibilities.
+                                    </p>
+                                </div>
+                            </article>
+
+                            <!-- Slide 2 -->
+                            <article class="about-slide" data-about-slide data-word="create with purpose."
+                                data-caption="Creativity should move your brand forward." data-category="OUR APPROACH"
+                                aria-hidden="true">
+
+                                <img src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=85"
+                                    alt="Modern collaborative workspace" loading="lazy">
+
+                                <div class="about-slide-content">
+                                    <span class="text-[10px] uppercase tracking-[0.3em] text-white/75">
+                                        Our approach
+                                    </span>
+                                    <p class="mt-3 max-w-sm text-2xl leading-snug sm:text-3xl">
+                                        Creativity should move your brand forward.
+                                    </p>
+                                </div>
+                            </article>
+
+                            <!-- Slide 3 -->
+                            <article class="about-slide" data-about-slide data-word="build for what's next."
+                                data-caption="Make today's ideas tomorrow's advantage." data-category="OUR AMBITION"
+                                aria-hidden="true">
+
+                                <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=85"
+                                    alt="Contemporary office designed for collaboration" loading="lazy">
+
+                                <div class="about-slide-content">
+                                    <span class="text-[10px] uppercase tracking-[0.3em] text-white/75">
+                                        Our ambition
+                                    </span>
+                                    <p class="mt-3 max-w-sm text-2xl leading-snug sm:text-3xl">
+                                        Make today's ideas tomorrow's advantage.
+                                    </p>
+                                </div>
+                            </article>
+
+                        </div>
+
+                        <!-- Carousel controls -->
+                        <div class="flex items-center justify-between gap-4 px-3 pb-2 pt-4 sm:px-4">
+
+                            <div class="min-w-0">
+                                <p id="about-slide-category"
+                                    class="text-[10px] uppercase tracking-[0.2em] text-blue-600">
+                                    OUR POINT OF VIEW
+                                </p>
+                                <p id="about-slide-caption" class="mt-1 text-xs text-slate-500 sm:text-sm"
+                                    aria-live="polite">
+                                    Strategy meets creativity.
+                                </p>
+                            </div>
+
+                            <div class="flex shrink-0 items-center gap-2">
+                                <button type="button" id="about-prev"
+                                    class="about-arrow flex h-9 w-9 items-center justify-center rounded-full border border-blue-200 text-blue-600"
+                                    aria-label="Previous slide">
+                                    ←
+                                </button>
+
+                                <button type="button" id="about-next"
+                                    class="about-arrow flex h-9 w-9 items-center justify-center rounded-full border border-blue-200 text-blue-600"
+                                    aria-label="Next slide">
+                                    →
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Progress indicators -->
+                        <div class="flex gap-2 px-3 pb-3 sm:px-4" role="group" aria-label="Choose a slide">
+
+                            <button class="about-indicator is-active" type="button" data-about-indicator="0"
+                                aria-label="Show slide 1" aria-pressed="true">
+                                <span></span>
+                            </button>
+
+                            <button class="about-indicator" type="button" data-about-indicator="1"
+                                aria-label="Show slide 2" aria-pressed="false">
+                                <span></span>
+                            </button>
+
+                            <button class="about-indicator" type="button" data-about-indicator="2"
+                                aria-label="Show slide 3" aria-pressed="false">
+                                <span></span>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Closing statement -->
+            <div
+                class="mt-20 flex flex-col gap-5 border-t border-blue-900/10 pt-7 sm:mt-24 sm:flex-row sm:items-center sm:justify-between">
+                <p class="max-w-xl text-sm leading-6 text-slate-500">
+                    Thoughtful strategy. Distinctive creativity. Digital experiences built for what's next.
+                </p>
+
+                <a href="#services"
+                    class="inline-flex w-fit items-center gap-3 text-sm text-blue-600 transition-all hover:gap-5">
+                    Explore what we do
+                    <span aria-hidden="true">→</span>
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+
+    <section id="faq" class="bg-white py-20 sm:py-28 lg:py-32 text-black">
+        <div class="mx-auto w-full max-w-[1440px] px-6 sm:px-10 lg:px-[5%]">
+
+            <!-- Heading -->
+            <div class="grid grid-cols-1 gap-8 pb-5 sm:pb-14 lg:grid-cols-2 lg:items-end">
+
+                <div>
+                    <p class="mb-5 text-xs font-medium uppercase tracking-[0.2em] text-blue-600">
+                        Frequently Asked Questions
+                    </p>
+
+                    <h2
+                        class="max-w-3xl text-4xl font-normal leading-tight tracking-[-0.045em] sm:text-5xl lg:text-7xl">
+                        Questions?
+                        <span class="text-black/45">Answered.</span>
+                    </h2>
+                </div>
+
+                <p class="max-w-md text-base leading-7 text-black/60 lg:justify-self-end lg:text-lg">
+                    Everything you need to know about working with Wavewrld.
+                    Can't find your answer? Get in touch with us.
+                </p>
+
+            </div>
+
+            <!-- FAQ layout -->
+            <div class="grid grid-cols-1 gap-12 pt-10 lg:grid-cols-12 lg:gap-16 lg:pt-14">
+
+                <!-- Side label -->
+                <div class="lg:col-span-3">
+                    <p class="text-sm text-black/50">General enquiries</p>
+                    <a href="mailto:hello@wavewrld.in"
+                        class="mt-4 inline-flex items-center gap-2 pb-1 text-sm transition-colors hover:border-blue-600 hover:text-blue-600">
+                        Ask us directly <span>↗</span>
+                    </a>
+                </div>
+
+                <!-- Questions -->
+                <div class="lg:col-span-9">
+
+                    <!-- FAQ 1 -->
+                    <div class="faq-item border-b border-black/20 first:border-t first:border-black/20">
+                        <button type="button"
+                            class="faq-question flex w-full items-center justify-between gap-6 py-6 text-left sm:py-8"
+                            aria-expanded="false">
+                            <span class="text-lg font-normal tracking-tight sm:text-2xl">
+                                What does Wavewrld do?
+                            </span>
+                            <span class="faq-icon shrink-0 text-2xl font-light text-blue-600">+</span>
+                        </button>
+
+                        <div class="faq-answer hidden pb-7 pr-8 sm:pb-8">
+                            <p class="max-w-2xl text-base leading-7 text-black/60">
+                                Wavewrld helps businesses build a stronger digital presence
+                                through web design, development, branding, and digital
+                                experiences designed around their goals.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 2 -->
+                    <div class="faq-item border-b border-black/20">
+                        <button type="button"
+                            class="faq-question flex w-full items-center justify-between gap-6 py-6 text-left sm:py-8"
+                            aria-expanded="false">
+                            <span class="text-lg font-normal tracking-tight sm:text-2xl">
+                                What types of businesses do you work with?
+                            </span>
+                            <span class="faq-icon shrink-0 text-2xl font-light text-blue-600">+</span>
+                        </button>
+
+                        <div class="faq-answer hidden pb-7 pr-8 sm:pb-8">
+                            <p class="max-w-2xl text-base leading-7 text-black/60">
+                                We work with startups, growing businesses, established brands,
+                                and entrepreneurs looking to create or improve their digital presence.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 3 -->
+                    <div class="faq-item border-b border-black/20">
+                        <button type="button"
+                            class="faq-question flex w-full items-center justify-between gap-6 py-6 text-left sm:py-8"
+                            aria-expanded="false">
+                            <span class="text-lg font-normal tracking-tight sm:text-2xl">
+                                Can you build a website tailored to my business?
+                            </span>
+                            <span class="faq-icon shrink-0 text-2xl font-light text-blue-600">+</span>
+                        </button>
+
+                        <div class="faq-answer hidden pb-7 pr-8 sm:pb-8">
+                            <p class="max-w-2xl text-base leading-7 text-black/60">
+                                Yes. We tailor the design, functionality, and user experience
+                                to your brand, audience, and business objectives.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 4 -->
+                    <div class="faq-item border-b border-black/20">
+                        <button type="button"
+                            class="faq-question flex w-full items-center justify-between gap-6 py-6 text-left sm:py-8"
+                            aria-expanded="false">
+                            <span class="text-lg font-normal tracking-tight sm:text-2xl">
+                                How long does a project take?
+                            </span>
+                            <span class="faq-icon shrink-0 text-2xl font-light text-blue-600">+</span>
+                        </button>
+
+                        <div class="faq-answer hidden pb-7 pr-8 sm:pb-8">
+                            <p class="max-w-2xl text-base leading-7 text-black/60">
+                                Timelines depend on the scope, features, content, and feedback
+                                process. We'll discuss a realistic timeline after understanding
+                                your requirements.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 5 -->
+                    <div class="faq-item border-b border-black/20">
+                        <button type="button"
+                            class="faq-question flex w-full items-center justify-between gap-6 py-6 text-left sm:py-8"
+                            aria-expanded="false">
+                            <span class="text-lg font-normal tracking-tight sm:text-2xl">
+                                How do we get started?
+                            </span>
+                            <span class="faq-icon shrink-0 text-2xl font-light text-blue-600">+</span>
+                        </button>
+
+                        <div class="faq-answer hidden pb-7 pr-8 sm:pb-8">
+                            <p class="max-w-2xl text-base leading-7 text-black/60">
+                                Send us an email with a brief description of your business,
+                                your goals, and the project you're planning. We'll take it
+                                from there.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Simple contact line -->
+            <div class="mt-16 flex flex-col gap-4 pt-6 sm:flex-row sm:items-center sm:justify-between lg:mt-20">
+                <p class="text-base text-black/60">
+                    Have a different question?
+                </p>
+
+                <a href="mailto:hello@wavewrld.in"
+                    class="inline-flex w-fit items-center gap-3 border-b border-black pb-1 text-base transition-colors hover:border-blue-600 hover:text-blue-600">
+                    Let's talk <span>↗</span>
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+
+    <footer id="contact" class="w-full bg-white text-black">
+        <div class="w-full px-6 sm:px-10 lg:px-[4.6vw]">
+
+            <!-- Top divider -->
+            <div class="border-t border-black"></div>
+
+            <!-- Brand and navigation -->
+            <div class="grid grid-cols-1 gap-12 py-16 sm:py-20 lg:grid-cols-12 lg:gap-8 lg:py-[5vw]">
+
+                <!-- Large brand statement -->
+                <div class="lg:col-span-8">
+                    <a href="#home"
+                        class="flex items-center text-4xl font-semibold tracking-[-0.075em] sm:text-5xl lg:text-[3.2vw]">
+                        <img class="h-16" src="./media/logo.png" alt="">
+                        WAVEWRLD<span class="text-blue-600">.</span>
+                    </a>
+
+                    <h2
+                        class="mt-12 max-w-[1050px] text-[clamp(3.5rem,7.5vw,8.5rem)] font-normal leading-[0.98] tracking-[-0.065em] sm:mt-16 lg:mt-[4.5vw]">
+
+                        <span class="scramble-text">Beyond Ordinary</span>
+                        <br>
+                        <span class="scramble-text">Beyond Expected</span>
+
+                    </h2>
+                </div>
+
+                <!-- Navigation columns -->
+                <div class="grid grid-cols-2 gap-10 sm:grid-cols-3 lg:col-span-4 lg:grid-cols-2 lg:pt-[8vw]">
+
+                    <div>
+                        <h3 class="mb-6 text-2xl font-normal sm:text-3xl">Explore</h3>
+                        <ul class="space-y-3 text-lg text-black/75 sm:text-xl">
+                            <li><a href="#about" class="transition-colors hover:text-blue-600">About</a></li>
+                            <li><a href="#services" class="transition-colors hover:text-blue-600">Services</a></li>
+                            <li><a href="#impact" class="transition-colors hover:text-blue-600">Our Work</a></li>
+                            <li><a href="#tools" class="transition-colors hover:text-blue-600">Our Tools</a></li>
+                            <li><a href="#faq" class="transition-colors hover:text-blue-600">FAQ</a></li>
+                            <li><a href="mailto:hello@wavewrld.in" class="transition-colors hover:text-blue-600">Let's
+                                    talk ↗</a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="mb-6 text-2xl font-normal sm:text-3xl">Connect</h3>
+                        <ul class="space-y-3 text-lg text-black/75 sm:text-xl">
+                            <li>
+                                <a href="mailto:hello@wavewrld.in" class="transition-colors hover:text-blue-600">
+                                    Email ↗
+                                </a>
+                            </li>
+                            <!-- Add social links here when available -->
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Contact information -->
+            <div class="grid grid-cols-1 gap-10 py-10 sm:grid-cols-2 lg:grid-cols-3 lg:py-14">
+
+                <div>
+                    <p class="mb-3 text-base font-semibold sm:text-lg">Digital Studio</p>
+                    <p class="text-base leading-7 text-black/70 sm:text-lg">
+                        Strategy, design & development<br>
+                        Digital experiences for ambitious brands.
+                    </p>
+                </div>
+
+                <div>
+                    <p class="mb-3 text-base font-semibold sm:text-lg">Start a Project</p>
+                    <a href="mailto:hello@wavewrld.in"
+                        class="text-base text-black/70 transition-colors hover:text-blue-600 sm:text-lg">
+                        hello@wavewrld.in
+                    </a>
+                </div>
+
+                <div>
+                    <p class="mb-3 text-base font-semibold sm:text-lg">Let's build what's next.</p>
+                    <a href="mailto:hello@wavewrld.in"
+                        class="text-base text-black/70 transition-colors hover:text-blue-600 sm:text-lg">
+                        Tell us about your project ↗
+                    </a>
+                </div>
+
+            </div>
+
+            <!-- Bottom bar -->
+            <div
+                class="flex flex-col gap-5 border-t border-black/20 py-6 text-sm text-black/65 sm:flex-row sm:items-center sm:justify-between">
+
+                <p>Copyright © <span id="footer-year"></span> Wavewrld. All rights reserved.</p>
+
+                <!-- <div class="flex flex-wrap gap-x-10 gap-y-3">
+                    <a href="#home" class="transition-colors hover:text-blue-600">Back to top ↑</a>
+                    <span>Designed for what's next.</span>
+                </div> -->
+
+            </div>
+
+        </div>
+    </footer>
+
+
+
+    <script>
+
+
+        (() => {
+            const carousel = document.getElementById("about-carousel");
+            if (!carousel || carousel.dataset.initialized === "true") return;
+            carousel.dataset.initialized = "true";
+
+            const slides = [...carousel.querySelectorAll("[data-about-slide]")];
+            const indicators = [...document.querySelectorAll("[data-about-indicator]")];
+            const changingWord = document.getElementById("about-changing-word");
+            const category = document.getElementById("about-slide-category");
+            const caption = document.getElementById("about-slide-caption");
+            const prev = document.getElementById("about-prev");
+            const next = document.getElementById("about-next");
+            const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+            const interval = 3000;
+            let current = 0;
+            let timer = null;
+            let paused = false;
+
+            function showSlide(index) {
+                current = (index + slides.length) % slides.length;
+
+                slides.forEach((slide, i) => {
+                    const active = i === current;
+                    slide.classList.toggle("is-active", active);
+                    slide.setAttribute("aria-hidden", String(!active));
+                });
+
+                indicators.forEach((button, i) => {
+                    const active = i === current;
+                    button.classList.toggle("is-active", active);
+                    button.classList.remove("is-paused");
+                    button.setAttribute("aria-pressed", String(active));
+                });
+
+                const slide = slides[current];
+
+                changingWord.classList.add("is-changing");
+
+                window.setTimeout(() => {
+                    changingWord.textContent = slide.dataset.word;
+                    changingWord.classList.remove("is-changing");
+                }, reduceMotion.matches ? 0 : 180);
+
+                category.textContent = slide.dataset.category;
+                caption.textContent = slide.dataset.caption;
+            }
+
+            function stopTimer() {
+                window.clearInterval(timer);
+                timer = null;
+            }
+
+            function startTimer() {
+                stopTimer();
+
+                if (paused || reduceMotion.matches || document.hidden) return;
+
+                timer = window.setInterval(() => {
+                    showSlide(current + 1);
+                }, interval);
+            }
+
+            function goTo(index) {
+                showSlide(index);
+                startTimer();
+            }
+
+            prev.addEventListener("click", () => goTo(current - 1));
+            next.addEventListener("click", () => goTo(current + 1));
+
+            indicators.forEach((button, index) => {
+                button.addEventListener("click", () => goTo(index));
+            });
+
+            carousel.addEventListener("keydown", (event) => {
+                if (event.key === "ArrowRight") {
+                    event.preventDefault();
+                    goTo(current + 1);
+                } else if (event.key === "ArrowLeft") {
+                    event.preventDefault();
+                    goTo(current - 1);
+                }
+            });
+
+            // Pause the rotation while visitors interact with the card.
+            carousel.addEventListener("mouseenter", () => {
+                paused = true;
+                stopTimer();
+                indicators[current].classList.add("is-paused");
+            });
+
+            carousel.addEventListener("mouseleave", () => {
+                paused = false;
+                startTimer();
+            });
+
+            carousel.addEventListener("focusin", () => {
+                paused = true;
+                stopTimer();
+            });
+
+            carousel.addEventListener("focusout", (event) => {
+                if (!carousel.contains(event.relatedTarget)) {
+                    paused = false;
+                    startTimer();
+                }
+            });
+
+            document.addEventListener("visibilitychange", startTimer);
+            reduceMotion.addEventListener("change", startTimer);
+
+            // Support touch gestures on phones.
+            let touchStartX = 0;
+
+            carousel.addEventListener("touchstart", (event) => {
+                touchStartX = event.changedTouches[0].clientX;
+            }, { passive: true });
+
+            carousel.addEventListener("touchend", (event) => {
+                const difference = event.changedTouches[0].clientX - touchStartX;
+
+                if (Math.abs(difference) > 50) {
+                    goTo(current + (difference < 0 ? 1 : -1));
+                }
+            }, { passive: true });
+
+            showSlide(0);
+            startTimer();
+        })();
+
+        /* Keep all website media muted */
+        (() => {
+            function muteMedia() {
+                document.querySelectorAll('video, audio').forEach((media) => {
+                    media.muted = true;
+                    media.defaultMuted = true;
+                    media.volume = 0;
+                });
+            }
+
+            // Mute existing media immediately
+            muteMedia();
+
+            // Mute newly added media, including dynamically generated videos
+            const observer = new MutationObserver(muteMedia);
+
+            observer.observe(document.documentElement, {
+                childList: true,
+                subtree: true
+            });
+        })();
+
+
+        (() => {
+            const button = document.getElementById('mobile-menu-button');
+            const panel = document.getElementById('mobile-navigation');
+            const icon = document.getElementById('mobile-menu-icon');
+
+            if (!button || !panel || !icon) return;
+
+            let isOpen = false;
+
+            function setMenu(open) {
+                isOpen = open;
+
+                button.setAttribute('aria-expanded', String(open));
+                button.setAttribute(
+                    'aria-label',
+                    open ? 'Close navigation menu' : 'Open navigation menu'
+                );
+
+                panel.classList.toggle('invisible', !open);
+                panel.classList.toggle('opacity-0', !open);
+                panel.classList.toggle('translate-y-2', !open);
+
+                panel.classList.toggle('visible', open);
+                panel.classList.toggle('opacity-100', open);
+                panel.classList.toggle('translate-y-0', open);
+
+                icon.innerHTML = open
+                    ? '<path d="m6 6 12 12M18 6 6 18"/>'
+                    : '<path d="M4 7h16M4 12h16M4 17h16"/>';
+            }
+
+            button.addEventListener('click', () => {
+                setMenu(!isOpen);
+            });
+
+            panel.querySelectorAll('a').forEach((link) => {
+                link.addEventListener('click', () => setMenu(false));
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') setMenu(false);
+            });
+
+            document.addEventListener('click', (event) => {
+                if (
+                    isOpen &&
+                    !panel.contains(event.target) &&
+                    !button.contains(event.target)
+                ) {
+                    setMenu(false);
+                }
+            });
+
+            // Close mobile menu when scrolling
+            window.addEventListener('scroll', () => {
+                if (isOpen) {
+                    setMenu(false);
+                }
+            }, { passive: true });
+
+            // Close the mobile menu when switching to desktop width.
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 1024) setMenu(false);
+            });
+        })();
+
+
+
+
+        (() => {
+            const loader = document.getElementById('site-loader');
+            const progressBar = document.getElementById('loader-progress');
+            const percentText = document.getElementById('loader-percent');
+            const messageText = document.getElementById('loader-message');
+
+            if (!loader) return;
+
+            document.body.classList.add('is-loading');
+
+            const startTime = performance.now();
+            const MINIMUM_TIME = 3000;
+
+            let progress = 0;
+            let finished = false;
+
+            // Preload images used by the page.
+            function preloadImages() {
+                const images = [...document.images];
+
+                return Promise.allSettled(
+                    images.map((img) => {
+                        if (img.complete && img.naturalWidth > 0) {
+                            return Promise.resolve();
+                        }
+
+                        if (img.loading === 'lazy') {
+                            // Don't force every below-the-fold lazy image to download.
+                            return Promise.resolve();
+                        }
+
+                        return new Promise((resolve) => {
+                            const done = () => resolve();
+
+                            img.addEventListener('load', done, { once: true });
+                            img.addEventListener('error', done, { once: true });
+
+                            // Handle images that have already finished loading.
+                            if (img.complete) done();
+                        });
+                    })
+                );
+            }
+
+            // Wait for the browser's initial page load.
+            const pageLoaded = document.readyState === 'complete'
+                ? Promise.resolve()
+                : new Promise((resolve) => {
+                    window.addEventListener('load', resolve, { once: true });
+                });
+
+            // Update the progress indicator smoothly.
+            const progressTimer = setInterval(() => {
+                if (finished) return;
+
+                const elapsed = performance.now() - startTime;
+                const target = Math.min(90, (elapsed / MINIMUM_TIME) * 90);
+
+                progress = Math.max(progress, target);
+
+                progressBar.style.width = `${progress}%`;
+                percentText.textContent = `${Math.floor(progress)
+                    .toString()
+                    .padStart(2, '0')}%`;
+            }, 40);
+
+            Promise.all([pageLoaded, preloadImages()]).then(async () => {
+                // Ensure the loader is visible for at least 3 seconds.
+                const elapsed = performance.now() - startTime;
+                const remaining = Math.max(0, MINIMUM_TIME - elapsed);
+
+                await new Promise((resolve) => setTimeout(resolve, remaining));
+
+                finished = true;
+                clearInterval(progressTimer);
+
+                progressBar.style.width = '100%';
+                percentText.textContent = '100%';
+                messageText.textContent = 'Ready to explore';
+
+                setTimeout(() => {
+                    loader.classList.add('is-hidden');
+                    document.body.classList.remove('is-loading');
+
+                    // Remove from layout after the fade-out.
+                    setTimeout(() => loader.remove(), 750);
+                }, 250);
+            });
+        })();
+
+        document.querySelectorAll('#tools .tools-icon').forEach((icon) => {
+            icon.addEventListener('error', function () {
+                console.warn('Tool icon failed to load:', this.alt, this.src);
+                this.style.display = 'none';
+            }, { once: true });
+        });
+        $(document).ready(function () {
+            $('.faq-question').on('click', function () {
+                const $button = $(this);
+                const $item = $button.closest('.faq-item');
+                const $answer = $item.find('.faq-answer');
+                const isOpen = $button.attr('aria-expanded') === 'true';
+
+                // Close all other questions
+                $('.faq-question')
+                    .attr('aria-expanded', 'false')
+                    .find('.faq-icon')
+                    .removeClass('rotate-45');
+
+                $('.faq-answer').stop(true, true).slideUp(250);
+
+                // Toggle the selected question
+                if (!isOpen) {
+                    $button.attr('aria-expanded', 'true');
+                    $button.find('.faq-icon').addClass('rotate-45');
+                    $answer.stop(true, true).slideDown(250);
+                }
+            });
+        });
+        const heroTaglines = [
+            "Elevate Your Brand",
+            "Innovate Your Strategy",
+            "Partner for Growth"
+        ];
+
+        const taglineElement = document.getElementById("hero-tagline");
+
+        if (taglineElement) {
+            let taglineIndex = 0;
+
+            function changeHeroTagline() {
+                taglineElement.classList.remove("animate");
+
+                // Restart the animation
+                void taglineElement.offsetWidth;
+
+                taglineElement.textContent = heroTaglines[taglineIndex];
+                taglineElement.classList.add("animate");
+
+                taglineIndex = (taglineIndex + 1) % heroTaglines.length;
+            }
+
+            changeHeroTagline();
+            setInterval(changeHeroTagline, 3200);
+        }
+        $(function () {
+
+            /* Your renamed media files */
+            const media = [
+                { file: "1.mp4", type: "video" },
+
+                { file: "2.webp", type: "image" },
+                { file: "3.webp", type: "image" },
+                { file: "4.webp", type: "image" },
+                { file: "5.webp", type: "image" },
+                { file: "6.webp", type: "image" },
+                { file: "7.webp", type: "image" },
+                { file: "8.webp", type: "image" },
+                { file: "9.webp", type: "image" },
+                { file: "10.webp", type: "image" },
+                { file: "11.webp", type: "image" },
+                { file: "12.webp", type: "image" },
+                { file: "13.webp", type: "image" },
+                { file: "14.webp", type: "image" },
+                { file: "15.webp", type: "image" },
+                { file: "16.webp", type: "image" },
+                { file: "17.webp", type: "image" },
+                { file: "18.webp", type: "image" },
+
+                { file: "19.mp4", type: "video" },
+                { file: "20.mp4", type: "video" },
+                { file: "21.mp4", type: "video" },
+                { file: "22.mp4", type: "video" },
+                { file: "23.mp4", type: "video" },
+                { file: "24.mp4", type: "video" }
+            ];
+
+            const rows = document.querySelectorAll(".media-row");
+            const links = ["#services", "#about", "#insights", "#contact"];
+
+            /*
+             * Four rows with six different assets each.
+             * Every track has two identical groups.
+             */
+            rows.forEach(function (row, rowIndex) {
+                const track = row.querySelector(".media-track");
+                const group = document.createElement("div");
+                group.className = "media-group";
+
+                const start = rowIndex * 6;
+                const rowMedia = media.slice(start, start + 6);
+
+                rowMedia.forEach(function (item, index) {
+                    const link = document.createElement("a");
+                    link.className = "media-card";
+                    link.href = links[(rowIndex + index) % links.length];
+                    link.setAttribute("aria-label", "Explore Wavewrld creative work");
+
+                    const path = "media/hero/" + item.file;
+
+                    if (item.type === "video") {
+                        const video = document.createElement("video");
+                        video.autoplay = true;
+                        video.muted = true;
+                        video.loop = true;
+                        video.playsInline = true;
+                        video.preload = "metadata";
+
+                        const source = document.createElement("source");
+                        source.src = path;
+                        source.type = "video/mp4";
+
+                        video.appendChild(source);
+                        link.appendChild(video);
+                    } else {
+                        const img = document.createElement("img");
+                        img.src = path;
+                        img.alt = "Wavewrld creative campaign";
+                        img.loading = "eager";
+                        img.decoding = "async";
+
+                        link.appendChild(img);
+                    }
+
+                    group.appendChild(link);
+                });
+
+                track.appendChild(group);
+
+                /* Duplicate the complete row for a seamless loop */
+                const clone = group.cloneNode(true);
+                clone.setAttribute("aria-hidden", "true");
+
+                clone.querySelectorAll("a").forEach(function (link) {
+                    link.setAttribute("tabindex", "-1");
+                });
+
+                track.appendChild(clone);
+            });
+
+            /* Pause all rows when a card is hovered */
+            const wall = document.querySelector(".media-wall");
+
+            wall.addEventListener("pointerover", function (event) {
+                if (event.target.closest(".media-card")) {
+                    wall.classList.add("is-paused");
+                }
+            });
+
+            wall.addEventListener("pointerout", function (event) {
+                const card = event.target.closest(".media-card");
+
+                if (card && !card.contains(event.relatedTarget)) {
+                    wall.classList.remove("is-paused");
+                }
+            });
+
+            wall.addEventListener("focusin", function (event) {
+                if (event.target.closest(".media-card")) {
+                    wall.classList.add("is-paused");
+                }
+            });
+
+            wall.addEventListener("focusout", function (event) {
+                if (event.target.closest(".media-card")) {
+                    wall.classList.remove("is-paused");
+                }
+            });
+
+            /* Navbar dropdowns */
+            const menus = {
+                Clients: {
+                    label: "Featured",
+                    links: [
+                        "Fabienne Chapot",
+                        "Arte Antwerp",
+                        "Hang Eleven",
+                        "Studio Noos",
+                        "FOUR"
+                    ],
+                    buttons: [
+                        { text: "All clients", href: "#" },
+                        { text: "Cases", href: "#" }
+                    ]
+                },
+
+                Services: {
+                    label: "What we do",
+                    links: [
+                        "Web Design",
+                        "E-commerce Development",
+                        "Digital Marketing",
+                        "Brand Strategy",
+                        "Conversion Optimization"
+                    ],
+                    buttons: [
+                        { text: "All services", href: "#services" },
+                        { text: "Our approach", href: "#about" }
+                    ]
+                },
+
+                Insights: {
+                    label: "Explore insights",
+                    links: [
+                        "Inside the Industry",
+                        "Inside the Team",
+                        "Inside the Brand",
+                        "Latest Articles",
+                        "News & Updates"
+                    ],
+                    buttons: [
+                        { text: "All insights", href: "#insights" },
+                        { text: "Our stories", href: "#insights" }
+                    ]
+                }
+            };
+
+            let activeMenu = null;
+            let closeTimer;
+
+            function openMenu(menu) {
+                if (!menus[menu] || activeMenu === menu) return;
+
+                activeMenu = menu;
+
+                $(".nav-link")
+                    .removeClass("text-slate-900")
+                    .addClass("text-slate-800/80");
+
+                $('.nav-link[data-menu="' + menu + '"]')
+                    .removeClass("text-slate-800/80")
+                    .addClass("text-slate-900");
+
+                const data = menus[menu];
+
+                const links = data.links.map(function (item) {
+                    return `
+                        <a href="#"
+                           class="dropdown-link block whitespace-nowrap py-[6px] text-[15px] tracking-tight text-slate-700 hover:text-black">
+                            ${item}
+                        </a>
+                    `;
+                }).join("");
+
+                const buttons = data.buttons.map(function (button, index) {
+                    const style = index === 0
+                        ? "bg-slate-900 text-white hover:bg-slate-700"
+                        : "bg-white/60 text-slate-900 hover:bg-white";
+
+                    return `
+                        <a href="${button.href}"
+                           class="flex min-h-[44px] flex-1 items-center gap-2 border border-slate-200 px-3 text-sm ${style}">
+                            <span>→</span>
+                            <span class="whitespace-nowrap">${button.text}</span>
+                        </a>
+                    `;
+                }).join("");
+
+                $("#dropdown-content").html(`
+                    <p class="mb-2 text-xs text-slate-500">${data.label}</p>
+                    <div class="flex flex-col">${links}</div>
+                    <div class="mt-3 flex gap-1">${buttons}</div>
+                `);
+
+                $("#dropdown")
+                    .removeClass("invisible translate-y-2 opacity-0")
+                    .addClass("visible translate-y-0 opacity-100");
+            }
+
+            function closeMenu() {
+                activeMenu = null;
+
+                $(".nav-link")
+                    .removeClass("text-slate-900")
+                    .addClass("text-slate-800/80");
+
+                $("#dropdown")
+                    .removeClass("visible translate-y-0 opacity-100")
+                    .addClass("invisible translate-y-2 opacity-0");
+            }
+
+            $(".nav-link[data-menu]").on("mouseenter", function () {
+                clearTimeout(closeTimer);
+                openMenu($(this).data("menu"));
+            });
+
+            $('.nav-link:not([data-menu])').on("mouseenter", function () {
+                clearTimeout(closeTimer);
+                closeMenu();
+            });
+
+            $("#navigation").on("mouseenter", function () {
+                clearTimeout(closeTimer);
+            });
+
+            $("#navigation").on("mouseleave", function () {
+                closeTimer = setTimeout(closeMenu, 150);
+            });
+
+            $("#dropdown").on("mouseenter", function () {
+                clearTimeout(closeTimer);
+            });
+        });
+    </script>
+
+
+    <!-- Futurists: professional scroll-reveal effects -->
+    <script>
+        (() => {
+            const initScrollReveals = () => {
+                const reducedMotion = window.matchMedia(
+                    "(prefers-reduced-motion: reduce)"
+                ).matches;
+
+                const selectors = [
+                    "#clients h2",
+                    "#clients .client-logo-cell",
+                    ".stories-section h1",
+                    ".stories-section h2",
+                    ".stories-section h3",
+                    ".stories-section .customer-card",
+                    "#services h2",
+                    "#services > div > div:first-child > p",
+                    "#services .service-card",
+                    "#tools h2",
+                    "#tools .tools-icon",
+                    "#about h1",
+                    "#about h2",
+                    "#about h3",
+                    "#about p",
+                    "#about img",
+                    "#faq h1",
+                    "#faq h2",
+                    "#faq h3",
+                    "#faq details",
+                    "#faq .faq-item",
+                    "[data-reveal]"
+                ];
+
+                const targets = [...new Set(
+                    selectors.flatMap(selector =>
+                        Array.from(document.querySelectorAll(selector))
+                    )
+                )].filter(element =>
+                    !element.closest("#home, #site-loader, nav") &&
+                    !element.closest("[data-no-reveal]") &&
+                    !element.matches("[data-no-reveal]")
+                );
+
+                if (reducedMotion || !("IntersectionObserver" in window)) {
+                    targets.forEach(element => {
+                        element.classList.add("is-revealed");
+                    });
+                    return;
+                }
+
+                targets.forEach((element, index) => {
+                    element.classList.add("scroll-reveal");
+
+                    if (element.matches("#about img")) {
+                        element.classList.add("scroll-image-reveal");
+                    }
+
+                    if (element.matches("#about h2")) {
+                        element.dataset.revealDirection = "left";
+                    }
+
+                    // Stagger each repeated group without long delays.
+                    const parent = element.parentElement;
+                    const siblings = parent
+                        ? Array.from(parent.children).filter(child =>
+                            targets.includes(child)
+                        )
+                        : [];
+
+                    if (siblings.length > 1) {
+                        const siblingIndex = siblings.indexOf(element);
+                        element.style.setProperty(
+                            "--scroll-reveal-delay",
+                            `${Math.min(Math.max(siblingIndex, 0), 5) * 75}ms`
+                        );
+                    }
+                });
+
+                const observer = new IntersectionObserver((entries, currentObserver) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add("is-revealed");
+                            currentObserver.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.12,
+                    rootMargin: "0px 0px -35px 0px"
+                });
+
+                targets.forEach(element => observer.observe(element));
+            };
+
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", initScrollReveals, { once: true });
+            } else {
+                initScrollReveals();
+            }
+        })();
+    </script>
+
+</body>
+
+</html>
